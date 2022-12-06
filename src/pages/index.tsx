@@ -1,9 +1,9 @@
 import Modal from "components/static/Modal";
 import DeleteOutlined from "components/icons/deleteOutlined";
 import EditOutlined from "components/icons/editOutlined";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { getUsers } from "services/users";
-import {  user } from "types/index";
+import { user } from "types/index";
 import * as styles from "utils/styles/tailwind";
 import { Formik } from "formik";
 import { userRole } from "./../constants/index";
@@ -12,13 +12,16 @@ import * as Yup from "yup";
 const Home = ({ usersList }: { usersList: user[] }) => {
   const theaders = ["Name", "Email", "Role", "Actions"];
   const [users, setUsers] = useState<user[] | []>([]);
+  const [selectedUsersList, setSelectedUsersList] = useState<user[] | []>([])
   const [selectedUser, setSelectedUser] = useState<user | null>();
   const [page, setPage] = useState<number>(1);
   const [open, setOpen] = useState<boolean>(false);
+  const selectUserRef: any = useRef([]);
+  selectUserRef.current = []
   let limit = 10;
   const getInitialValues = () => {
     const initialValues: user = {
-      id: String(users.length+1),
+      id: String(users.length + 1),
       name: "",
       email: "",
       role: "developer",
@@ -47,26 +50,39 @@ const Home = ({ usersList }: { usersList: user[] }) => {
   const usersMemo = useMemo(() => getUsersList(page, limit), [page, limit]);
   const deleteUser = (userId: string) => {
     const filteredUser = users.filter((user) => user.id !== userId);
-    console.log(filteredUser, "filtered user");
     setUsers(filteredUser);
   };
   const editUser = async (user: user) => {
-   await setSelectedUser(user);
+    await setSelectedUser(user);
     setOpen(true);
   };
 
-  const updateUser = (values:user) => {
-let usersList = [...users]
-for(let i=0; i<usersList.length; i++){
-  if(usersList[i].id === values.id){
-    usersList[i] = values;
-    setUsers(usersList);
-    break;
+  const updateUser = (values: user) => {
+    let usersList = [...users];
+    for (let i = 0; i < usersList.length; i++) {
+      if (usersList[i].id === values.id) {
+        usersList[i] = values;
+        setUsers(usersList);
+        break;
+      }
+    }
+    setOpen(false);
+  };
+  const handleSelectAllUsers = (checked: boolean) => {
+    selectUserRef.current.forEach((element:any) => {
+      if(checked){
+        element.checked = true;
+        setSelectedUsersList([...users])
+      }else{
+        element.checked = false
+      }
+    });
+  };
+  const addRef = (el:any) => {
+    if(el && !selectUserRef.current.includes(el)){
+      selectUserRef.current.push(el)
+    }
   }
-}
-setOpen(false)
-}
-  
   return (
     <div className={styles.wrapper}>
       <h1 className={styles.title}>Users</h1>
@@ -79,7 +95,14 @@ setOpen(false)
         <thead>
           <tr>
             <th className={styles.tableCell}>
-              <input type="checkbox" />
+  <>
+              {console.log(selectUserRef.current[0])}
+              <input
+                type="checkbox"
+                onChange={(e) => handleSelectAllUsers(e.target.checked)}
+                checked = {selectedUsersList.length === limit}
+              />
+              </>
             </th>
             {theaders.map((header) => (
               <th key={header} className={styles.tableCell}>
@@ -90,10 +113,10 @@ setOpen(false)
         </thead>
         <tbody>
           {users && users.length > 0 ? (
-            users.map((user) => (
+            users.map((user, index) => (
               <tr key={user.id}>
                 <td className={styles.tableCell}>
-                  <input type="checkbox" />
+                  <input type="checkbox" ref={addRef} checked={selectUserRef.current.checked}/>
                 </td>
                 <td className={styles.tableCell}>{user.name}</td>
                 <td className={styles.tableCell}>{user.email}</td>
@@ -125,7 +148,7 @@ setOpen(false)
           initialValues={getInitialValues()}
           validationSchema={validationSchema}
           onSubmit={(values) => {
-            updateUser(values)
+            updateUser(values);
           }}
         >
           {({ values, handleChange, handleSubmit, touched, errors }) => (
@@ -141,7 +164,7 @@ setOpen(false)
                   value={values.name}
                   onChange={handleChange}
                   className={styles.inputField}
-                  />
+                />
                 {touched.name && errors.name && (
                   <p className={styles.errMsg}>{errors.name}</p>
                 )}
@@ -175,7 +198,7 @@ setOpen(false)
               <div className="mt-4 flex justify-end">
                 <button className={styles.btnTextPrimary}>Cancel</button>
                 <button type="submit" className={styles.btnFilledPrimary}>
-                  Create User
+                  Update User
                 </button>
               </div>
             </form>
