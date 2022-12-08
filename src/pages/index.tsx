@@ -17,6 +17,7 @@ const Home = ({ usersList }: { usersList: user[] }) => {
   const [page, setPage] = useState<number>(1);
   const [open, setOpen] = useState<boolean>(false);
   const selectUserRef: any = useRef([]);
+  const selectAllUserRef: any = useRef(null);
   selectUserRef.current = []
   let limit = 10;
   const getInitialValues = () => {
@@ -47,7 +48,7 @@ const Home = ({ usersList }: { usersList: user[] }) => {
     let newUsersList = usersList.slice(start, end);
     setUsers(newUsersList);
   };
-  const usersMemo = useMemo(() => getUsersList(page, limit), [page, limit]);
+  useMemo(() => getUsersList(page, limit), [page, limit]);
   const deleteUser = (userId: string) => {
     const filteredUser = users.filter((user) => user.id !== userId);
     setUsers(filteredUser);
@@ -74,10 +75,23 @@ const Home = ({ usersList }: { usersList: user[] }) => {
         element.checked = true;
         setSelectedUsersList([...users])
       }else{
-        element.checked = false
+        element.checked = false;
+        setSelectedUsersList([])
       }
     });
   };
+  console.log(selectedUsersList)
+  const handleSelectedUser = (checked: boolean, user:user) => {
+    if(checked){
+      setSelectedUsersList(prevUsers => [...prevUsers, user])
+    }else{
+      const filterList = selectedUsersList.filter((userData)=> user.id !== userData.id);
+      setSelectedUsersList(filterList)
+    }
+    if(selectedUsersList.length > 0){
+      selectAllUserRef.current.indeterminate = true
+    }
+  }
   const addRef = (el:any) => {
     if(el && !selectUserRef.current.includes(el)){
       selectUserRef.current.push(el)
@@ -95,14 +109,12 @@ const Home = ({ usersList }: { usersList: user[] }) => {
         <thead>
           <tr>
             <th className={styles.tableCell}>
-  <>
-              {console.log(selectUserRef.current[0])}
               <input
                 type="checkbox"
                 onChange={(e) => handleSelectAllUsers(e.target.checked)}
                 checked = {selectedUsersList.length === limit}
+                ref={selectAllUserRef}
               />
-              </>
             </th>
             {theaders.map((header) => (
               <th key={header} className={styles.tableCell}>
@@ -116,7 +128,7 @@ const Home = ({ usersList }: { usersList: user[] }) => {
             users.map((user, index) => (
               <tr key={user.id}>
                 <td className={styles.tableCell}>
-                  <input type="checkbox" ref={addRef} checked={selectUserRef.current.checked}/>
+                  <input type="checkbox" ref={addRef} onChange={(e) =>handleSelectedUser(e.target.checked, user)}/>
                 </td>
                 <td className={styles.tableCell}>{user.name}</td>
                 <td className={styles.tableCell}>{user.email}</td>
