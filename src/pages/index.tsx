@@ -12,14 +12,14 @@ import * as Yup from "yup";
 const Home = ({ usersList }: { usersList: user[] }) => {
   const theaders = ["Name", "Email", "Role", "Actions"];
   const [users, setUsers] = useState<user[] | []>([]);
-  const [selectedUsersList, setSelectedUsersList] = useState<user[] | []>([])
+  const [selectedUsersList, setSelectedUsersList] = useState<user[] | []>([]);
   const [selectedUser, setSelectedUser] = useState<user | null>();
   const [page, setPage] = useState<number>(1);
   const [open, setOpen] = useState<boolean>(false);
   const selectUserRef: any = useRef([]);
   const selectAllUserRef: any = useRef(null);
   selectUserRef.current = []
-  let limit = 10;
+  let limit = 3;
   const getInitialValues = () => {
     const initialValues: user = {
       id: String(users.length + 1),
@@ -53,6 +53,29 @@ const Home = ({ usersList }: { usersList: user[] }) => {
     const filteredUser = users.filter((user) => user.id !== userId);
     setUsers(filteredUser);
   };
+  useMemo(() => selectUserRef.current = selectUserRef.current.slice(0, users.length), [users.length]);
+  useMemo(()=>{if(selectAllUserRef.current){
+    if(selectedUsersList.length > 0 && selectedUsersList.length < users.length){
+      selectAllUserRef.current.indeterminate = true
+    }else if(selectedUsersList.length === users.length){
+      selectAllUserRef.current.indeterminate = false
+      selectAllUserRef.current.checked = true
+    }else{
+      selectAllUserRef.current.indeterminate = false
+      selectAllUserRef.current.checked = false
+    }
+  }},[selectedUsersList.length])
+  const selectedUserCallback = useCallback(() => {
+    if(selectedUsersList.length > 0 && !(selectedUsersList.length === users.length)){
+      selectAllUserRef.current.indeterminate = true
+    }else if(selectedUsersList.length === users.length){
+      selectAllUserRef.current.indeterminate = false
+      selectAllUserRef.current.checked = true
+    }else{
+      selectAllUserRef.current.checked = false;
+      selectAllUserRef.current.indeterminate = false
+    }
+  },[selectedUsersList])
   const editUser = async (user: user) => {
     await setSelectedUser(user);
     setOpen(true);
@@ -70,32 +93,23 @@ const Home = ({ usersList }: { usersList: user[] }) => {
     setOpen(false);
   };
   const handleSelectAllUsers = (checked: boolean) => {
-    selectUserRef.current.forEach((element:any) => {
       if(checked){
-        element.checked = true;
+        selectUserRef.current.forEach((elRef:any) => elRef.checked = true)
         setSelectedUsersList([...users])
       }else{
-        element.checked = false;
+        selectUserRef.current.forEach((elRef:any) => elRef.checked = false)
         setSelectedUsersList([])
       }
-    });
-  };
-  console.log(selectedUsersList)
-  const handleSelectedUser = (checked: boolean, user:user) => {
+    };
+
+  const handleSelectedUser = async (checked: boolean, user:user) => {
     if(checked){
-      setSelectedUsersList(prevUsers => [...prevUsers, user])
+     await setSelectedUsersList(prevUsers => [...prevUsers, user]);
     }else{
       const filterList = selectedUsersList.filter((userData)=> user.id !== userData.id);
-      setSelectedUsersList(filterList)
+      setSelectedUsersList(filterList);
     }
-    if(selectedUsersList.length > 0){
-      selectAllUserRef.current.indeterminate = true
-    }
-  }
-  const addRef = (el:any) => {
-    if(el && !selectUserRef.current.includes(el)){
-      selectUserRef.current.push(el)
-    }
+    
   }
   return (
     <div className={styles.wrapper}>
@@ -112,7 +126,7 @@ const Home = ({ usersList }: { usersList: user[] }) => {
               <input
                 type="checkbox"
                 onChange={(e) => handleSelectAllUsers(e.target.checked)}
-                checked = {selectedUsersList.length === limit}
+                // checked = {selectedUsersList.length === users.length}
                 ref={selectAllUserRef}
               />
             </th>
@@ -128,7 +142,7 @@ const Home = ({ usersList }: { usersList: user[] }) => {
             users.map((user, index) => (
               <tr key={user.id}>
                 <td className={styles.tableCell}>
-                  <input type="checkbox" ref={addRef} onChange={(e) =>handleSelectedUser(e.target.checked, user)}/>
+                  <input type="checkbox" ref={el => selectUserRef.current[index] = el} onChange={(e) =>handleSelectedUser(e.target.checked, user)}/>
                 </td>
                 <td className={styles.tableCell}>{user.name}</td>
                 <td className={styles.tableCell}>{user.email}</td>
