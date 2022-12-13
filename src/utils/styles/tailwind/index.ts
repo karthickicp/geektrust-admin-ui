@@ -1,7 +1,7 @@
 export const tableCell = 'p-2.5 border-solid border border-x-0 border-slate-200 text-left';
 export const table = 'w-full bordered table-auto border-collapse bg-white rounded-md shadow-sm mb-3';
 export const search = 'w-full p-3 mb-3 rounded-md shadow-sm';
-export const wrapper = 'h-full p-3 bg-slate-100';
+export const wrapper = 'min-h-screen p-3 bg-slate-100';
 export const title = 'text-2xl font-semibold mb-3';
 export const editIcon = "float-left mr-3 h-5 w-5 cursor-pointer";
 export const deleteIcon = "stroke-red-600 h-5 w-5 cursor-pointer";

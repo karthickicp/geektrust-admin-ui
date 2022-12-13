@@ -49,8 +49,17 @@ const Home = ({ usersList }: { usersList: user[] }) => {
     setUsers(newUsersList);
   };
   useMemo(() => getUsersList(page, limit), [page, limit]);
-  const deleteUser = (userId: string) => {
-    const filteredUser = users.filter((user) => user.id !== userId);
+  const deleteUser = (userId: string | user[]) => {
+    let filteredUser;
+    if(typeof userId === 'string'){
+      filteredUser = users.filter((user) => user.id !== userId);
+      // setUsers(filteredUser);
+    }else {
+      filteredUser = users.filter((user:user) => {
+        return userId.indexOf(user.id) > -1;
+      })
+      console.log(filteredUser, 'filtered user')
+    }
     setUsers(filteredUser);
   };
   useMemo(() => selectUserRef.current = selectUserRef.current.slice(0, users.length), [users.length]);
@@ -65,17 +74,6 @@ const Home = ({ usersList }: { usersList: user[] }) => {
       selectAllUserRef.current.checked = false
     }
   }},[selectedUsersList.length])
-  const selectedUserCallback = useCallback(() => {
-    if(selectedUsersList.length > 0 && !(selectedUsersList.length === users.length)){
-      selectAllUserRef.current.indeterminate = true
-    }else if(selectedUsersList.length === users.length){
-      selectAllUserRef.current.indeterminate = false
-      selectAllUserRef.current.checked = true
-    }else{
-      selectAllUserRef.current.checked = false;
-      selectAllUserRef.current.indeterminate = false
-    }
-  },[selectedUsersList])
   const editUser = async (user: user) => {
     await setSelectedUser(user);
     setOpen(true);
@@ -168,6 +166,7 @@ const Home = ({ usersList }: { usersList: user[] }) => {
           )}
         </tbody>
       </table>
+      <button className={styles.btnFilledPrimary} onClick={() => deleteUser(selectedUsersList)}>Delete User</button>
       <button onClick={() => setPage((prev) => prev + 1)}>Next page</button>
       <Modal isOpen={open} handleClose={closeModal} title="Edit User">
         <Formik
