@@ -1,7 +1,7 @@
 import Modal from "components/static/Modal";
 import DeleteOutlined from "components/icons/deleteOutlined";
 import EditOutlined from "components/icons/editOutlined";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { getUsers } from "services/users";
 import { user } from "types/index";
 import * as styles from "utils/styles/tailwind";
@@ -9,6 +9,7 @@ import { Formik } from "formik";
 import { userRole } from "./../constants/index";
 import Select from "components/static/Select";
 import * as Yup from "yup";
+import Pagination from "components/static/Pagination";
 const Home = ({ usersList }: { usersList: user[] }) => {
   const theaders = ["Name", "Email", "Role", "Actions"];
   const [users, setUsers] = useState<user[] | []>([]);
@@ -19,7 +20,7 @@ const Home = ({ usersList }: { usersList: user[] }) => {
   const selectUserRef: any = useRef([]);
   const selectAllUserRef: any = useRef(null);
   selectUserRef.current = []
-  let limit = 3;
+  let limit = 10;
   const getInitialValues = () => {
     const initialValues: user = {
       id: String(users.length + 1),
@@ -55,11 +56,9 @@ const Home = ({ usersList }: { usersList: user[] }) => {
       filteredUser = users.filter((user) => user.id !== userId);
       // setUsers(filteredUser);
     }else {
-      filteredUser = users.filter((user:user) => {
-        return userId.indexOf(user.id) > -1;
-      })
-      console.log(filteredUser, 'filtered user')
+      filteredUser = users.filter((user) => !userId.some(({ id }) => id === user.id));
     }
+    setSelectedUsersList([])
     setUsers(filteredUser);
   };
   useMemo(() => selectUserRef.current = selectUserRef.current.slice(0, users.length), [users.length]);
@@ -121,12 +120,15 @@ const Home = ({ usersList }: { usersList: user[] }) => {
         <thead>
           <tr>
             <th className={styles.tableCell}>
-              <input
-                type="checkbox"
-                onChange={(e) => handleSelectAllUsers(e.target.checked)}
-                // checked = {selectedUsersList.length === users.length}
-                ref={selectAllUserRef}
-              />
+              {users.length > 0 ? (
+                <input
+                  type="checkbox"
+                  onChange={(e) => handleSelectAllUsers(e.target.checked)}
+                  // checked = {selectedUsersList.length === users.length}
+                  ref={selectAllUserRef}
+                />
+              ): null}
+              
             </th>
             {theaders.map((header) => (
               <th key={header} className={styles.tableCell}>
@@ -166,8 +168,15 @@ const Home = ({ usersList }: { usersList: user[] }) => {
           )}
         </tbody>
       </table>
-      <button className={styles.btnFilledPrimary} onClick={() => deleteUser(selectedUsersList)}>Delete User</button>
-      <button onClick={() => setPage((prev) => prev + 1)}>Next page</button>
+      <div className={styles.paginationWrapper}>
+        <div>
+          {selectedUsersList.length > 0 ? (
+            <button className={styles.btnFilledPrimary} onClick={() => deleteUser(selectedUsersList)}>Delete User</button>
+          ): null}
+        </div>
+        <Pagination list={usersList} limit={limit} page={page} setCurrentPage={setPage}/>
+      </div>
+      
       <Modal isOpen={open} handleClose={closeModal} title="Edit User">
         <Formik
           initialValues={getInitialValues()}
