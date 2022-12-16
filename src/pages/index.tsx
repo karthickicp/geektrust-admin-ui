@@ -1,7 +1,7 @@
 import Modal from "components/static/Modal";
 import DeleteOutlined from "components/icons/deleteOutlined";
 import EditOutlined from "components/icons/editOutlined";
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { getUsers } from "services/users";
 import { user } from "types/index";
 import * as styles from "utils/styles/tailwind";
@@ -11,6 +11,7 @@ import Select from "components/static/Select";
 import * as Yup from "yup";
 import Pagination from "components/static/Pagination";
 const Home = ({ usersList }: { usersList: user[] }) => {
+  const [allUsers, setAllUsers] = useState(usersList)
   const theaders = ["Name", "Email", "Role", "Actions"];
   const [users, setUsers] = useState<user[] | []>([]);
   const [selectedUsersList, setSelectedUsersList] = useState<user[] | []>([]);
@@ -33,7 +34,6 @@ const Home = ({ usersList }: { usersList: user[] }) => {
     }
     return initialValues;
   };
-
   const validationSchema = Yup.object({
     name: Yup.string().required("Name is required"),
     email: Yup.string()
@@ -46,20 +46,19 @@ const Home = ({ usersList }: { usersList: user[] }) => {
   const getUsersList = (page: number, limit: number) => {
     let start = (page - 1) * limit;
     let end = start + limit;
-    let newUsersList = usersList.slice(start, end);
+    let newUsersList = allUsers.slice(start, end);
     setUsers(newUsersList);
   };
-  useMemo(() => getUsersList(page, limit), [page, limit]);
+  useMemo(() => getUsersList(page, limit), [page, limit, allUsers]);
   const deleteUser = (userId: string | user[]) => {
     let filteredUser;
     if(typeof userId === 'string'){
-      filteredUser = users.filter((user) => user.id !== userId);
-      // setUsers(filteredUser);
+      filteredUser = allUsers.filter((user) => user.id !== userId);
     }else {
-      filteredUser = users.filter((user) => !userId.some(({ id }) => id === user.id));
+      filteredUser = allUsers.filter((user) => !userId.some(({ id }) => id === user.id));
     }
     setSelectedUsersList([])
-    setUsers(filteredUser);
+    setAllUsers(filteredUser);
   };
   useMemo(() => selectUserRef.current = selectUserRef.current.slice(0, users.length), [users.length]);
   useMemo(()=>{if(selectAllUserRef.current){
@@ -174,7 +173,7 @@ const Home = ({ usersList }: { usersList: user[] }) => {
             <button className={styles.btnFilledPrimary} onClick={() => deleteUser(selectedUsersList)}>Delete User</button>
           ): null}
         </div>
-        <Pagination list={usersList} limit={limit} page={page} setCurrentPage={setPage}/>
+        <Pagination list={allUsers} limit={limit} page={page} setCurrentPage={setPage}/>
       </div>
       
       <Modal isOpen={open} handleClose={closeModal} title="Edit User">

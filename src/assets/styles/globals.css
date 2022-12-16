@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+input[type=checkbox]:checked, input:indeterminate{
+    accent-color: #0284C7 !important;
+}
+/* indeterminate */

@@ -12,6 +12,7 @@ export const btnOutlinedPrimary = "text-emerald-500 font-semibold py-2 px-4 roun
 export const btnTextPrimary = " text-gray=900 font-semibold py-2 px-4"
 export const errMsg = "text-red-500"
 export const paginationWrapper = 'flex justify-between'
-export const pagination = 'flex justify-center gap-1 text-md font-medium'
-export const paginationItem = 'inline-flex px-2 bg-white items-center justify-center rounded border border-gray-300 leading-8 cursor-pointer'
-export const paginationActive = 'bg-emerald-500 text-white'
+export const pagination = 'flex justify-center gap-1 text-md'
+export const paginationItem = 'inline-flex bg-white items-center justify-center rounded border border-gray-300 leading-8'
+export const paginationActive = 'bg-emerald-500 text-white';
+export const paginationDisabled = 'text-gray-500'
