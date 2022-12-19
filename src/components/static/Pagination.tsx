@@ -7,7 +7,7 @@ const activePage = useMemo(() => {
         setCurrentPage(numOfPages)
         return numOfPages
     }else {
-        setCurrentPage(numOfPages)
+        setCurrentPage(page)
         return page
     }
 }, [list, page]);

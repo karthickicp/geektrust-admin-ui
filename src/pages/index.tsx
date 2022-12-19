@@ -10,6 +10,7 @@ import { userRole } from "./../constants/index";
 import Select from "components/static/Select";
 import * as Yup from "yup";
 import Pagination from "components/static/Pagination";
+import useDebounce from "hooks/useDebounce";
 const Home = ({ usersList }: { usersList: user[] }) => {
   const [allUsers, setAllUsers] = useState(usersList)
   const theaders = ["Name", "Email", "Role", "Actions"];
@@ -18,6 +19,7 @@ const Home = ({ usersList }: { usersList: user[] }) => {
   const [selectedUser, setSelectedUser] = useState<user | null>();
   const [page, setPage] = useState<number>(1);
   const [open, setOpen] = useState<boolean>(false);
+  const [search, setSearch] = useState<string>('')
   const selectUserRef: any = useRef([]);
   const selectAllUserRef: any = useRef(null);
   selectUserRef.current = []
@@ -104,16 +106,34 @@ const Home = ({ usersList }: { usersList: user[] }) => {
     }else{
       const filterList = selectedUsersList.filter((userData)=> user.id !== userData.id);
       setSelectedUsersList(filterList);
-    }
-    
+    } 
   }
+
+  const searchUser = (searchVal: string) => {
+    const result:any = [];
+    if(searchVal === ''){
+      setAllUsers(usersList)
+      return result
+    }
+   for(let i = 0; i<allUsers.length; i++){
+    if(allUsers[i].name.toLowerCase().includes(searchVal.toLowerCase()) ||
+     allUsers[i].email.toLowerCase().includes(searchVal.toLowerCase())||
+    allUsers[i].role.toLowerCase().includes(searchVal.toLowerCase())){
+      result.push(allUsers[i])
+    }
+   }
+    setAllUsers(result)
+  }
+  useDebounce(() => searchUser(search),500,[search])
   return (
     <div className={styles.wrapper}>
       <h1 className={styles.title}>Users</h1>
       <input
         type="text"
         className={styles.search}
-        placeholder="Search by email or email"
+        placeholder="Search by name or email or role"
+        value={search}
+        onChange = {(e) => setSearch(e.target.value)}
       />
       <table className={styles.table}>
         <thead>
