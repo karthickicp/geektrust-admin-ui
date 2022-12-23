@@ -1,23 +1,16 @@
-import { useCallback, useEffect, useMemo } from "react"
+import { useState } from "react"
 import * as styles from "utils/styles/tailwind";
 const Pagination = ({list, limit, page, setCurrentPage}:{list: any[], limit: number, page: number, setCurrentPage: any}) => {
-let numOfPages = useMemo(() => Math.ceil(list.length/limit), [list, limit]);
-const activePage = useMemo(() => {
-    if(page >= numOfPages){
-        setCurrentPage(numOfPages)
-        return numOfPages
-    }else {
-        setCurrentPage(page)
-        return page
-    }
-}, [list, page]);
+let numOfPages = Math.ceil(list.length/limit);
+const [activePage, setActivePage] = useState(page);
+console.log(activePage, 'active page')
 return(
     <ul className={styles.pagination}>
-        <li className={activePage !== 1 ? styles.paginationItem : `${styles.paginationItem} ${styles.paginationDisabled}`}><button className="px-2" disabled={page === 1 ? true : false } onClick={() =>setCurrentPage(1)}>&laquo;</button></li>
-        <li className={activePage !== 1 ? styles.paginationItem : `${styles.paginationItem} ${styles.paginationDisabled}`}><button className="px-2" disabled={page === 1 ? true : false } onClick={() =>setCurrentPage((prev:number) => prev > 1 ? prev -1 : prev)}>&#8249;</button></li>
-        {[...Array(numOfPages)].map((_, index) => <li key={index} className={activePage === index + 1 ? `${styles.paginationItem} ${styles.paginationActive}`: styles.paginationItem}><button className="px-2" onClick={() => setCurrentPage(index+1)}>{index + 1}</button></li>)}
-        <li className={activePage !== numOfPages ? styles.paginationItem : `${styles.paginationItem} ${styles.paginationDisabled}`}><button className="px-2" disabled={page === numOfPages ? true : false} onClick={() =>setCurrentPage((prev:number) => prev !== numOfPages ? prev +1 : prev)}>&#8250;</button></li>
-        <li className={activePage !== numOfPages ? styles.paginationItem : `${styles.paginationItem} ${styles.paginationDisabled}`}><button className="px-2" disabled={page === numOfPages ? true : false} onClick={() =>{
+        <li className={activePage !== 1 ? styles.paginationItem : `${styles.paginationItem} ${styles.paginationDisabled}`}><button className="px-2" disabled={activePage === 1 ? true : false } onClick={() =>setActivePage(1)}>&laquo;</button></li>
+        <li className={activePage !== 1 ? styles.paginationItem : `${styles.paginationItem} ${styles.paginationDisabled}`}><button className="px-2" disabled={activePage === 1 ? true : false } onClick={() =>setActivePage((prev:number) => prev > 1 ? prev -1 : prev)}>&#8249;</button></li>
+        {[...Array(numOfPages)].map((_, index) => <li key={index} className={activePage === index + 1 ? `${styles.paginationItem} ${styles.paginationActive}`: styles.paginationItem}><button className="px-2" onClick={() => setActivePage(index+1)}>{index + 1}</button></li>)}
+        <li className={activePage !== numOfPages ? styles.paginationItem : `${styles.paginationItem} ${styles.paginationDisabled}`}><button className="px-2" disabled={activePage === numOfPages ? true : false} onClick={() =>setActivePage((prev:number) => prev !== numOfPages ? prev +1 : prev)}>&#8250;</button></li>
+        <li className={activePage !== numOfPages ? styles.paginationItem : `${styles.paginationItem} ${styles.paginationDisabled}`}><button className="px-2" disabled={activePage === numOfPages ? true : false} onClick={() =>{
             console.log('final click');
             setCurrentPage(numOfPages)
         }}>&raquo;</button></li>

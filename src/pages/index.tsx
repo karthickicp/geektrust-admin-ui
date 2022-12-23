@@ -1,7 +1,7 @@
 import Modal from "components/static/Modal";
 import DeleteOutlined from "components/icons/deleteOutlined";
 import EditOutlined from "components/icons/editOutlined";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getUsers } from "services/users";
 import { user } from "types/index";
 import * as styles from "utils/styles/tailwind";
@@ -51,7 +51,10 @@ const Home = ({ usersList }: { usersList: user[] }) => {
     let newUsersList = allUsers.slice(start, end);
     setUsers(newUsersList);
   };
-  useMemo(() => getUsersList(page, limit), [page, limit, allUsers]);
+  useEffect(() => {
+    setSelectedUsersList([])
+    getUsersList(page, limit);
+  }, [page, limit, allUsers]);
   const deleteUser = (userId: string | user[]) => {
     let filteredUser;
     if(typeof userId === 'string'){
@@ -62,18 +65,22 @@ const Home = ({ usersList }: { usersList: user[] }) => {
     setSelectedUsersList([])
     setAllUsers(filteredUser);
   };
-  useMemo(() => selectUserRef.current = selectUserRef.current.slice(0, users.length), [users.length]);
-  useMemo(()=>{if(selectAllUserRef.current){
+  useEffect(() => {
+    selectUserRef.current = selectUserRef.current.slice(0, users.length);
+    return () => {
+      selectUserRef.current = []
+    }
+  }, [users.length, page]);
+  useEffect(()=>{
+    if(selectAllUserRef.current){
     if(selectedUsersList.length > 0 && selectedUsersList.length < users.length){
       selectAllUserRef.current.indeterminate = true
     }else if(selectedUsersList.length === users.length){
       selectAllUserRef.current.indeterminate = false
-      selectAllUserRef.current.checked = true
     }else{
       selectAllUserRef.current.indeterminate = false
-      selectAllUserRef.current.checked = false
     }
-  }},[selectedUsersList.length])
+  }},[selectedUsersList.length, page])
   const editUser = async (user: user) => {
     await setSelectedUser(user);
     setOpen(true);
@@ -143,7 +150,7 @@ const Home = ({ usersList }: { usersList: user[] }) => {
                 <input
                   type="checkbox"
                   onChange={(e) => handleSelectAllUsers(e.target.checked)}
-                  // checked = {selectedUsersList.length === users.length}
+                  checked = {selectedUsersList.length === users.length}
                   ref={selectAllUserRef}
                 />
               ): null}
