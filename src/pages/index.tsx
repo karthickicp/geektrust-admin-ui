@@ -55,16 +55,6 @@ const Home = ({ usersList }: { usersList: user[] }) => {
     setSelectedUsersList([])
     getUsersList(page, limit);
   }, [page, limit, allUsers]);
-  const deleteUser = (userId: string | user[]) => {
-    let filteredUser;
-    if(typeof userId === 'string'){
-      filteredUser = allUsers.filter((user) => user.id !== userId);
-    }else {
-      filteredUser = allUsers.filter((user) => !userId.some(({ id }) => id === user.id));
-    }
-    setSelectedUsersList([])
-    setAllUsers(filteredUser);
-  };
   useEffect(() => {
     selectUserRef.current = selectUserRef.current.slice(0, users.length);
     return () => {
@@ -80,12 +70,27 @@ const Home = ({ usersList }: { usersList: user[] }) => {
     }else{
       selectAllUserRef.current.indeterminate = false
     }
-  }},[selectedUsersList.length, page])
+  }},[selectedUsersList.length, page]);
+  useEffect(() => {
+    if(users.length === 0 && page !== 1){
+     setPage(prev => prev -1)
+    }
+  },[users])
+  useDebounce(() => searchUser(search),500,[search]);
+  const deleteUser = (userId: string | user[]) => {
+    let filteredUser;
+    if(typeof userId === 'string'){
+      filteredUser = allUsers.filter((user) => user.id !== userId);
+    }else {
+      filteredUser = allUsers.filter((user) => !userId.some(({ id }) => id === user.id));
+    }
+    setSelectedUsersList([])
+    setAllUsers(filteredUser);
+  };
   const editUser = async (user: user) => {
     await setSelectedUser(user);
     setOpen(true);
   };
-
   const updateUser = (values: user) => {
     let usersList = [...users];
     for (let i = 0; i < usersList.length; i++) {
@@ -131,7 +136,6 @@ const Home = ({ usersList }: { usersList: user[] }) => {
    }
     setAllUsers(result)
   }
-  useDebounce(() => searchUser(search),500,[search])
   return (
     <div className={styles.wrapper}>
       <h1 className={styles.title}>Users</h1>
