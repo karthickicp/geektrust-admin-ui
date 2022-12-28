@@ -16,3 +16,4 @@ export const pagination = 'flex justify-center gap-1 text-md'
 export const paginationItem = 'inline-flex bg-white items-center justify-center rounded border border-gray-300 leading-8'
 export const paginationActive = 'bg-emerald-500 text-white';
 export const paginationDisabled = 'text-gray-500'
+export const tableRowSelected = 'bg-emerald-100'

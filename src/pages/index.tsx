@@ -11,6 +11,7 @@ import Select from "components/static/Select";
 import * as Yup from "yup";
 import Pagination from "components/static/Pagination";
 import useDebounce from "hooks/useDebounce";
+import EditModel from "modules/home/editModal";
 const Home = ({ usersList }: { usersList: user[] }) => {
   const [allUsers, setAllUsers] = useState(usersList)
   const theaders = ["Name", "Email", "Role", "Actions"];
@@ -57,9 +58,6 @@ const Home = ({ usersList }: { usersList: user[] }) => {
   }, [page, limit, allUsers]);
   useEffect(() => {
     selectUserRef.current = selectUserRef.current.slice(0, users.length);
-    return () => {
-      selectUserRef.current = []
-    }
   }, [users.length, page]);
   useEffect(()=>{
     if(selectAllUserRef.current){
@@ -170,7 +168,7 @@ const Home = ({ usersList }: { usersList: user[] }) => {
         <tbody>
           {users && users.length > 0 ? (
             users.map((user, index) => (
-              <tr key={user.id}>
+              <tr key={user.id} className = {selectedUsersList.findIndex((userData) => userData.id === user.id) >=0 ? styles.tableRowSelected : ""}>
                 <td className={styles.tableCell}>
                   <input type="checkbox" ref={el => selectUserRef.current[index] = el} onChange={(e) =>handleSelectedUser(e.target.checked, user)}/>
                 </td>
@@ -207,7 +205,7 @@ const Home = ({ usersList }: { usersList: user[] }) => {
         <Pagination list={allUsers} limit={limit} page={page} setCurrentPage={setPage}/>
       </div>
       
-      <Modal isOpen={open} handleClose={closeModal} title="Edit User">
+      {/* <Modal isOpen={open} handleClose={closeModal} title="Edit User">
         <Formik
           initialValues={getInitialValues()}
           validationSchema={validationSchema}
@@ -268,7 +266,9 @@ const Home = ({ usersList }: { usersList: user[] }) => {
             </form>
           )}
         </Formik>
-      </Modal>
+      </Modal> */}
+
+      <EditModel isOpen={open} handleClose={closeModal} updateUser={updateUser} title="Edit User" selectedUser = {selectedUser} totalUsers = {users.length}/>
     </div>
   );
 };
