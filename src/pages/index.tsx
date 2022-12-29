@@ -11,7 +11,7 @@ import Select from "components/static/Select";
 import * as Yup from "yup";
 import Pagination from "components/static/Pagination";
 import useDebounce from "hooks/useDebounce";
-import EditModel from "modules/home/editModal";
+
 const Home = ({ usersList }: { usersList: user[] }) => {
   const [allUsers, setAllUsers] = useState(usersList)
   const theaders = ["Name", "Email", "Role", "Actions"];
@@ -205,7 +205,7 @@ const Home = ({ usersList }: { usersList: user[] }) => {
         <Pagination list={allUsers} limit={limit} page={page} setCurrentPage={setPage}/>
       </div>
       
-      {/* <Modal isOpen={open} handleClose={closeModal} title="Edit User">
+       <Modal isOpen={open} handleClose={closeModal} title="Edit User">
         <Formik
           initialValues={getInitialValues()}
           validationSchema={validationSchema}
@@ -266,9 +266,7 @@ const Home = ({ usersList }: { usersList: user[] }) => {
             </form>
           )}
         </Formik>
-      </Modal> */}
-
-      <EditModel isOpen={open} handleClose={closeModal} updateUser={updateUser} title="Edit User" selectedUser = {selectedUser} totalUsers = {users.length}/>
+      </Modal>
     </div>
   );
 };
