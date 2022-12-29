@@ -11,7 +11,7 @@ import Select from "components/static/Select";
 import * as Yup from "yup";
 import Pagination from "components/static/Pagination";
 import useDebounce from "hooks/useDebounce";
-
+import Head from 'next/head';
 const Home = ({ usersList }: { usersList: user[] }) => {
   const [allUsers, setAllUsers] = useState(usersList)
   const theaders = ["Name", "Email", "Role", "Actions"];
@@ -136,7 +136,13 @@ const Home = ({ usersList }: { usersList: user[] }) => {
   }
   return (
     <div className={styles.wrapper}>
+      <Head>
+        <title>Admin UI</title>
+        <meta property="og:title" content="Admin UI" key="title" />
+        <meta property="og:description" content="Admin UI" key="description" />
+      </Head>
       <h1 className={styles.title}>Users</h1>
+      <img src="assets/img/favicon.png" alt="" />
       <input
         type="text"
         className={styles.search}
@@ -144,58 +150,62 @@ const Home = ({ usersList }: { usersList: user[] }) => {
         value={search}
         onChange = {(e) => setSearch(e.target.value)}
       />
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th className={styles.tableCell}>
-              {users.length > 0 ? (
-                <input
-                  type="checkbox"
-                  onChange={(e) => handleSelectAllUsers(e.target.checked)}
-                  checked = {selectedUsersList.length === users.length}
-                  ref={selectAllUserRef}
-                />
-              ): null}
-              
-            </th>
-            {theaders.map((header) => (
-              <th key={header} className={styles.tableCell}>
-                {header}
+      <div className={styles.overflowXAuto}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th className={styles.tableCell}>
+                {users.length > 0 ? (
+                  <input
+                    type="checkbox"
+                    aria-label="select all users"
+                    onChange={(e) => handleSelectAllUsers(e.target.checked)}
+                    checked={selectedUsersList.length === users.length}
+                    ref={selectAllUserRef}
+                  />
+                ) : null}
+
               </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {users && users.length > 0 ? (
-            users.map((user, index) => (
-              <tr key={user.id} className = {selectedUsersList.findIndex((userData) => userData.id === user.id) >=0 ? styles.tableRowSelected : ""}>
-                <td className={styles.tableCell}>
-                  <input type="checkbox" ref={el => selectUserRef.current[index] = el} onChange={(e) =>handleSelectedUser(e.target.checked, user)}/>
-                </td>
-                <td className={styles.tableCell}>{user.name}</td>
-                <td className={styles.tableCell}>{user.email}</td>
-                <td className={styles.tableCell}>{user.role}</td>
-                <td className={styles.tableCell}>
-                  <EditOutlined
-                    className={styles.editIcon}
-                    onClick={() => editUser(user)}
-                  />
-                  <DeleteOutlined
-                    className={styles.deleteIcon}
-                    onClick={() => deleteUser(user.id)}
-                  />
+              {theaders.map((header) => (
+                <th key={header} className={styles.tableCell}>
+                  {header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {users && users.length > 0 ? (
+              users.map((user, index) => (
+                <tr key={user.id} className={selectedUsersList.findIndex((userData) => userData.id === user.id) >= 0 ? styles.tableRowSelected : ""}>
+                  <td className={styles.tableCell}>
+                    <input type="checkbox" aria-label="select user" ref={el => selectUserRef.current[index] = el} onChange={(e) => handleSelectedUser(e.target.checked, user)} />
+                  </td>
+                  <td className={styles.tableCell}>{user.name}</td>
+                  <td className={styles.tableCell}>{user.email}</td>
+                  <td className={styles.tableCell}>{user.role}</td>
+                  <td className={styles.tableCell}>
+                    <EditOutlined
+                      className={styles.editIcon}
+                      onClick={() => editUser(user)}
+                    />
+                    <DeleteOutlined
+                      className={styles.deleteIcon}
+                      onClick={() => deleteUser(user.id)}
+                    />
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={5} className={`${styles.tableCell} text-center`}>
+                  No Users Found
                 </td>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan={5} className={`${styles.tableCell} text-center`}>
-                No Users Found
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            )}
+          </tbody>
+        </table>
+      </div>
+     
       <div className={styles.paginationWrapper}>
         <div>
           {selectedUsersList.length > 0 ? (
@@ -213,7 +223,7 @@ const Home = ({ usersList }: { usersList: user[] }) => {
             updateUser(values);
           }}
         >
-          {({ values, handleChange, handleSubmit, touched, errors }) => (
+          {({ values, handleChange, handleSubmit, touched, errors, setFieldValue }) => (
             <form onSubmit={handleSubmit}>
               <div>
                 <label htmlFor="name" className={styles.labelText}>
@@ -253,7 +263,7 @@ const Home = ({ usersList }: { usersList: user[] }) => {
                 </label>
                 <Select
                   value={values.role}
-                  onChange={() => handleChange}
+                  onChange={(value:string) => setFieldValue('role', value)}
                   options={userRole}
                 />
               </div>

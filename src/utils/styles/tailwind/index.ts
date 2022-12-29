@@ -17,3 +17,4 @@ export const paginationItem = 'inline-flex bg-white items-center justify-center 
 export const paginationActive = 'bg-emerald-500 text-white';
 export const paginationDisabled = 'text-gray-500'
 export const tableRowSelected = 'bg-emerald-100'
+export const overflowXAuto = 'overflow-x-auto'
