@@ -30,7 +30,7 @@ const Home = ({ usersList }: { usersList: user[] }) => {
       id: String(users.length + 1),
       name: "",
       email: "",
-      role: "developer",
+      role: "member",
     };
     if (selectedUser) {
       return selectedUser;
@@ -139,7 +139,7 @@ const Home = ({ usersList }: { usersList: user[] }) => {
       <Head>
         <title>Admin UI</title>
         <meta property="og:title" content="Admin UI" key="title" />
-        <meta property="og:description" content="Admin UI" key="description" />
+        <meta property="og:description" content="A Lightweight application for admins to manage their users" key="description" />
       </Head>
       <h1 className={styles.title}>Users</h1>
       <img src="assets/img/favicon.png" alt="" />
